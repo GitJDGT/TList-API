@@ -34,19 +34,46 @@ class TaskListController extends Controller
         {
             return response()->json([
                 'message' => 'Task list not found.'
-            ]);
+            ], 404);
         }
 
         return new TaskListResource($taskList);
     }
 
-    public function update()
+    public function update($taskListID, StoreTaskListRequest $request)
     {
+        $validated = $request->validated();
+
+        $taskList = TaskList::find($taskListID);
+
+        if(!$taskList)
+        {
+            return response()->json([
+                'message' => 'Task list not found.'
+            ], 404);
+        }
+
+        $taskList->update($validated);
+
+        return new TaskListResource($taskList);
 
     }
 
-    public function destroy()
+    public function destroy($taskListID)
     {
+        $taskList = TaskList::find($taskListID);
 
+        if(!$taskList)
+        {
+            return response()->json([
+                'message' => 'Task list not found.'
+            ], 404);
+        }
+
+        $taskList->delete();
+
+        return response()->json([
+            'message' => 'Task list deleted.'
+        ], 200);
     }
 }
