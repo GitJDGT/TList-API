@@ -11,6 +11,7 @@ class TaskController extends Controller
 {
     public function index()
     {
+        // ! This route is deactivated.
         return TaskResource::collection(Task::all());
     }
 
@@ -34,6 +35,13 @@ class TaskController extends Controller
             ], 404);
         }
 
+        if(auth()->user()->cannot('view', $task))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ]);
+        }
+
         return new TaskResource($task);
     }
 
@@ -50,6 +58,13 @@ class TaskController extends Controller
             ], 404);
         }
 
+        if($request->user()->cannot('update', $task))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ]);
+        }
+
         $task->update($validated);
 
         return new TaskResource($task);
@@ -64,6 +79,13 @@ class TaskController extends Controller
             return response()->json([
                 'message' => 'Task not found.'
             ], 404);
+        }
+
+        if(auth()->user()->cannot('delete', $task))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ]);
         }
 
         $task->delete();

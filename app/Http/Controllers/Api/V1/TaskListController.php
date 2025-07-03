@@ -37,6 +37,13 @@ class TaskListController extends Controller
             ], 404);
         }
 
+        if(auth()->user()->cannot('view', $taskList))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ]);
+        }
+
         return new TaskListResource($taskList);
     }
 
@@ -53,10 +60,16 @@ class TaskListController extends Controller
             ], 404);
         }
 
+        if($request->user()->cannot('update', $taskList))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ], 403);
+        }
+
         $taskList->update($validated);
 
         return new TaskListResource($taskList);
-
     }
 
     public function destroy($taskListID)
@@ -68,6 +81,13 @@ class TaskListController extends Controller
             return response()->json([
                 'message' => 'Task list not found.'
             ], 404);
+        }
+
+        if(auth()->user()->cannot('delete', $taskList))
+        {
+            return response()->json([
+                'message' => 'Unauthorized.'
+            ]);
         }
 
         $taskList->delete();

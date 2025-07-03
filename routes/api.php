@@ -19,9 +19,3 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Task Related Routes
 Route::apiResource('task-list', TaskListController::class)->middleware('auth:sanctum');
 Route::apiResource('task', TaskController::class)->middleware('auth:sanctum')->except('index');
-
-
-Route::get('/user2', function () {
-    return User::all();
-});
-
