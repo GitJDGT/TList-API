@@ -30,8 +30,9 @@ class AuthController extends Controller
             $token = $user->createToken('token')->plainTextToken;
 
             return response()->json([
+                'name' => $user->name,
                 'token' => $token,
-                'token_type' => 'Bearer',
+                'token_type' => 'Bearer'
             ], 200);
         }
 
@@ -68,9 +69,18 @@ class AuthController extends Controller
     {
         $validated = $this->validate($request);
 
-        $user = User::create($validated);
+        if($validated)
+        {
+            $user = User::create($validated);
 
-        return response()->json($user, 201);
+            return response()->json([
+                'message' => 'User registered successfully.'
+            ], 201);
+        }
+
+        return response()->json([
+            'message' => 'User could not be registered.'
+        ], 422);
     }
 
     /**
@@ -89,11 +99,20 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ];
 
+        // We check if the request is not a Log In request, then
+        // we check for a valid name and email, the email must be unique.
         if(!$request->routeIs('login'))
         {
-            $rules['name'] = 'required|string|max:40';
+            $rules['name'] = 'required|string|max:40|min:3';
+            $rules['email'] .= '|unique:users,email';
         }
 
-        return $request->validate($rules);
+        // If the email is not unique, we return an error message.
+        return $request->validate(
+            $rules,
+            [
+                'email.unique' => 'The provided email is already registered.',
+            ]
+        );
     }
 }
